@@ -1,0 +1,43 @@
+import React, { Component } from 'react'
+import { StyleSheet, Text, View } from 'react-native'
+import Expo, { Permissions, Notifications } from 'expo'
+
+async function registerPushNotificationService() {
+  const { status } = await Permissions.askAsync(Permissions.REMOTE_NOTIFICATIONS)
+  if (status !== 'granted') {
+    return
+  }
+  const token = await Notifications.getExponentPushTokenAsync()
+  console.log('!!!!! my token is:', token)
+}
+
+export default class App extends Component {
+  state = { notifications: null }
+  componentWillMount() {
+    registerPushNotificationService()
+    this.listeners = Notifications.addListener(this.onPushNotification)
+  }
+  onPushNotification = (notifications) => { this.setState({notifications})}
+  render() {
+    return (
+      <View style={styles.container}>
+        <Text>Hello world!</Text>
+        <Text>Hello world!</Text>
+        { this.state.notifications
+          && <Text>{JSON.stringify(this.state.notifications)}</Text>
+        }
+      </View>
+    )
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+})
+
+Expo.registerRootComponent(App)
